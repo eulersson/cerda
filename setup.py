@@ -11,7 +11,7 @@ setup(
     license='MIT',
     keywords='renderfarm ncca transfer files watch',
     packages=find_packages(exclude=['docs', 'tests']),
-    install_requires=['pysftp'],
+    install_requires=['coloredlogs', 'dropbox', 'pysftp'],
     extras_require={
         'docs': ['Sphinx', 'sphinx_rtd_theme'],
         'test': ['coverage', 'pytest', 'pytest-cov'],

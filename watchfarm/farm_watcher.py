@@ -1,17 +1,12 @@
+import logging
 import os
 import time
 
 import pysftp
 
-def get_abs_form_rel(rel_rem_dir, username):
-    return os.path.join(
-        '/',
-        os.path.join(
-            'home',
-            username,
-            *rel_rem_dir.split('/')
-        )
-    )
+logger = logging.getLogger('watchfarm')
+
+from helpers import get_abs_form_rel
 
 class FarmWatcher:
     """Core class of the command line application."""
@@ -27,8 +22,8 @@ class FarmWatcher:
         self.__abs_loc_dir = sanitized_paths[1]
 
         self.__processed = []
-        print "Renderfarm path -->", self.__abs_rem_dir
-        print "Destination path  -->", self.__abs_loc_dir
+        logger.info("Renderfarm path: %s", self.__abs_rem_dir)
+        logger.info("Destination path: %s", self.__abs_loc_dir)
 
     def run(self, delay_seconds):
         with pysftp.Connection(
@@ -42,7 +37,7 @@ class FarmWatcher:
                 listed_stuff = sftp.listdir()
                 for item in listed_stuff:
                     if item not in self.__processed and os.path.splitext(item)[1] in self.extensions:
-                        print "New item dropped: ", item
+                        logger.info("New item dropped: %s", item)
 
                         remote_absolute_path = os.path.join(sftp.pwd, item)
                         local_absolute_path = os.path.join(self.__abs_loc_dir, item)
