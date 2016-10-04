@@ -9,9 +9,25 @@ logger = logging.getLogger('watchfarm')
 from helpers import get_abs_form_rel
 
 class FarmWatcher:
-    """Core class of the command line application."""
+    """Core class of the command line application. Handles or the file input
+    output operations."""
     extensions = ['.png', '.exr', '.jpg', '.jpeg', '.txt']
     def __init__(self, username, password, rel_src_dir, rel_tar_dir, host='tete', client=None):
+        """Farm watcher constructor initializes a state parsed from arguments.
+
+        Args:
+            username (str): local machine username. The i number, i.e. i7243466
+            password (str): password used to connect to the renderfarm server
+            rel_src_dir (str): renderfarm directory where frames will be dropped.
+                It needs to be relative to the home folder.
+            rel_tar_dir (str): target directory where to place the rendered images.
+                It needs to be relative to the home folder. If dropbox option is
+                passed it will go to that folder from the dropbox root.
+            host (str): host direction to connect to using sftp
+            client (dropbox.client.DropboxClient): the Dropbox client instance 
+                used to upload the files to the account. It has been initialized
+                already. It is ready to go.
+        """
         self.__host = host
         self.__username = username
         self.__password = password
@@ -61,10 +77,11 @@ class FarmWatcher:
                             f = open(target_absolute_filepath, 'rb')
                             dbox_path = '/'.join(target_absolute_filepath.split(os.path.sep)[3:])
                             logger.info("Uploading %s to Dropbox...", dbox_path)
-                            self.__client.put_file(item, f)
+                            self.__client.put_file(dbox_path, f)
                             f.close()
-                            logger.debug("COOL!")
+                            logger.info("%s uploaded to Dropbox", dbox_path)
                             os.remove(target_absolute_filepath)
+                            logger.debug("Removed local file %s", target_absolute_filepath)
 
                         self.__processed.append(item)
 
