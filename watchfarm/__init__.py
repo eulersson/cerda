@@ -27,20 +27,15 @@ def main():
     parser.add_argument('-db', '--dropbox', help="Will send the files to the root path of your dropbox account.", action='store_true')
     args = parser.parse_args()
 
+    client = None
+
     if not (args.source and args.destination):
         logger.error("The --source and --destination flags are needed. Check 'watchfarm --help'")
         return
 
     if args.dropbox:
-        logger.info("You will need to log in into dropbox")
-        dropbox_setup()
-
-    abs_dest_path = os.path.expanduser(os.path.join('~', args.destination))
-    if not os.path.exists(abs_dest_path) and not args.dropbox:
-        logger.warning("Seems that %s does not exist on your local drive. Creating it... ", abs_dest_path)
-        os.makedirs(abs_dest_path)
-        logger.info("Folder structure created, you are welcome :)")
+        client = dropbox_setup()
 
     password = getpass.getpass()
-    watcher = FarmWatcher(getpass.getuser(), password, args.source, args.destination)
+    watcher = FarmWatcher(getpass.getuser(), password, args.source, args.destination, client=client)
     watcher.run(2)

@@ -11,19 +11,24 @@ from helpers import get_abs_form_rel
 class FarmWatcher:
     """Core class of the command line application."""
     extensions = ['.png', '.exr', '.jpg', '.jpeg', '.txt']
-    def __init__(self, username, password, rel_rem_dir, rel_loc_dir, host='tete'):
+    def __init__(self, username, password, rel_src_dir, rel_tar_dir, host='tete', client=None):
         self.__host = host
         self.__username = username
         self.__password = password
-
-        sanitized_paths = [get_abs_form_rel(x, self.__username) for x in [rel_rem_dir, rel_loc_dir]]
-
-        self.__abs_rem_dir = sanitized_paths[0]
-        self.__abs_loc_dir = sanitized_paths[1]
-
+        self.__client = client
         self.__processed = []
-        logger.info("Renderfarm path: %s", self.__abs_rem_dir)
-        logger.info("Destination path: %s", self.__abs_loc_dir)
+
+        self.__abs_src_dir, self.__abs_tar_dir = (get_abs_form_rel(x, self.__username) for x in [rel_src_dir, rel_tar_dir])
+
+        if not self.__client:
+            logger.debug("Not using dropbox...")
+            if not os.path.exists(self.__abs_tar_dir):
+                logger.warning("Seems that %s does not exist on your local drive. Creating it... ", self.__abs_tar_dir)
+                os.makedirs(self.__abs_tar_dir)
+                logger.info("Folder structure created, you are welcome :)")
+
+        logger.info("Renderfarm path: %s", self.__abs_src_dir)
+        logger.info("Target path: %s", self.__abs_tar_dir)
 
     def run(self, delay_seconds):
         with pysftp.Connection(
@@ -31,7 +36,7 @@ class FarmWatcher:
             self.__username,
             password=self.__password
         ) as sftp:
-            sftp.chdir(self.__abs_rem_dir)
+            sftp.chdir(self.__abs_src_dir)
             while True:
                 current_dir = sftp.pwd
                 listed_stuff = sftp.listdir()
@@ -39,11 +44,27 @@ class FarmWatcher:
                     if item not in self.__processed and os.path.splitext(item)[1] in self.extensions:
                         logger.info("New item dropped: %s", item)
 
-                        remote_absolute_path = os.path.join(sftp.pwd, item)
-                        local_absolute_path = os.path.join(self.__abs_loc_dir, item)
+                        source_absolute_filepath = os.path.join(sftp.pwd, item)
+                        target_absolute_filepath = os.path.join(self.__abs_tar_dir, item)
 
-                        sftp.get(remote_absolute_path, local_absolute_path)
-                        sftp.remove(remote_absolute_path)
+                        logger.debug("Source absolute filepath: %s", source_absolute_filepath)
+                        logger.debug("Target absolute filepath: %s", target_absolute_filepath)
+
+                        logger.debug("Getting the file from server")
+                        sftp.get(item, target_absolute_filepath)
+                        logger.debug("Removing file from server")
+                        sftp.remove(source_absolute_filepath)
+
+                        if self.__client:
+                            logger.debug("Need to move file to dropbox")
+                            logger.debug("Opening file: %s", target_absolute_filepath)
+                            f = open(target_absolute_filepath, 'rb')
+                            dbox_path = '/'.join(target_absolute_filepath.split(os.path.sep)[3:])
+                            logger.info("Uploading %s to Dropbox...", dbox_path)
+                            self.__client.put_file(item, f)
+                            f.close()
+                            logger.debug("COOL!")
+                            os.remove(target_absolute_filepath)
 
                         self.__processed.append(item)
 
