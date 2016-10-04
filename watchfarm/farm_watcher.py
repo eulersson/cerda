@@ -14,6 +14,7 @@ def get_abs_form_rel(rel_rem_dir, username):
     )
 
 class FarmWatcher:
+    """Core class of the command line application."""
     extensions = ['.png', '.exr', '.jpg', '.jpeg', '.txt']
     def __init__(self, username, password, rel_rem_dir, rel_loc_dir, host='tete'):
         self.__host = host
