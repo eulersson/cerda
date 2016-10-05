@@ -25,7 +25,7 @@ as I like to keep things simple.
     guy in the labs, or drop me an email blanquer.ramon@gmail.com
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    prerequisites
    installation
