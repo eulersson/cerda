@@ -1,19 +1,18 @@
-import os
-import logging
 import argparse
 import getpass
-
-
-import dropbox
-
-
-
+import logging
+import os
+import re
 import smtplib
 
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 
-logger = logging.getLogger("cerda")
+import dropbox
+
+from cerda.errors import CerdaError
+
+logger = logging.getLogger(__name__)
 
 def dropbox_setup():
     token_path = os.path.join(os.path.expanduser(os.path.sep.join(['~', '.cerda'])), 'dbox_token.txt')
@@ -32,7 +31,12 @@ def dropbox_setup():
         token_file.close()
 
     else:
-        logger.debug("NO! Need to create one.")
+        logger.info((
+            "You will have to give me permissions to upload stuff to your"
+            "Dropbox account. In order for me to do that you will need to"
+            "authorize Cerda in your account, don't worry it's just a one time"
+            "thing.")
+        )
 
         flow = dropbox.client.DropboxOAuth2FlowNoRedirect(APP_KEY, APP_SECRET)
         authorize_url = flow.start()
@@ -59,7 +63,7 @@ def dropbox_setup():
         token_file.close()
 
     client = dropbox.client.DropboxClient(access_token)
-    logger.info("Oh, hello %s", client.account_info()['display_name'])
+    logger.info("Yay! %s, I just hooked to your Dropbox account!", client.account_info()['display_name'])
     return client
 
 def email_sender(email_address, processed_items):
@@ -109,29 +113,33 @@ def parse_args(args):
     parser.add_argument('-t', '--target', help=t_des, required=True)
     parser.add_argument('-dbox', '--dropbox', help=d_des, action='store_true')
     parser.add_argument('-m', '--email', help=m_des)
-    parser.add_argument('-c', '--count', help=c_des)
+    parser.add_argument('-c', '--count', help=c_des, type=int)
     parser.add_argument('-e', '--every', help=e_des, type=int, default=5)
     args = parser.parse_args(args)
 
     if args.email or args.count:
-        if not (args.email and args.count):
+        if not (args.email and args.count is not None):
             logger.error("-c (--count) and -m (--mail) both need to be passed, not just one.")
-            raise CerdaError
+            raise CerdaError("gdg")
 
         else:
-            logger.debug("mail is: %s", args.email)
-            logger.debug("count is: %s", args.count)
+            logger.debug("Email passed in is: %s", args.email)
+            logger.debug("Frame count for sending email is: %s", args.count)
+            EMAIL_REGEX = re.compile(r'[^@]+@[^@]+\.[^@]+')
+            if not EMAIL_REGEX.match(args.email):
+                raise CerdaError("You entered an invalid email. Typo maybe?")
 
-    # validation on args.source
+    # Validation on -s / --source to be implemented
 
-    # validation on args.target
+    # validation on -t / --target to be implemented
 
-    # validation on args.email
+    # Validation on -e / --every to be implemented
 
-    # validation on args.count
+    # Validation on -c / --count
+    if args.count < 1:
+        raise CerdaError("You want to be sent an email after %s frames have been rendered? That does not make any sense..." % args.count)
 
-    # validation on every
-
+    # Dropbox handling
     client = None
     if args.dropbox:
         client = dropbox_setup()

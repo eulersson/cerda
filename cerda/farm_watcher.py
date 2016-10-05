@@ -1,13 +1,20 @@
+import getpass
 import logging
 import os
+import tempfile
 import time
+
+import paramiko 
+from paramiko.ssh_exception import AuthenticationException
 
 import pysftp
 
-logger = logging.getLogger('cerda')
+logger = logging.getLogger(__name__)
 
 from helpers import get_abs_form_rel
 from helpers import email_sender
+
+from cerda.errors import CerdaError
 
 class FarmWatcher:
     """Core class of the command line application. Handles or the file input
@@ -31,80 +38,108 @@ class FarmWatcher:
         """
         self.__host = host
         self.__username = username
-        print password
         self.__password = password
         self.__client = client
         self.__processed = []
         self.__notify = bool(notify)
+        self.__temporary_folder = None
 
-        logger.debug("notify: %s", notify)
-
+        report = ("\n\nREPORT\n"
+                 "------\n"
+                 "- Username: %s\n"
+                 "- Relative Source Directory: %s\n"
+                 "- Relative Target Directory: %s\n"
+                 "- Host: %s\n"
+                 "- Notification Email: %s\n"
+                 "- Notification Count: %d\n"
+                 "- Dropbox Client: %s\n\n") % ( 
+                        username,
+                        rel_src_dir,
+                        rel_tar_dir,
+                        host,
+                        notify[0],
+                        notify[1],
+                        str(client)
+                    )
+        logger.debug(report)
         if self.__notify:
             (self.__email_address, self.__send_mail_after_count) = notify
             self.__current_count = 0
 
+        logger.info("I will send you an email to %s after %s frames have been collected", self.__email_address, self.__send_mail_after_count)
+
         self.__abs_src_dir, self.__abs_tar_dir = (get_abs_form_rel(x, self.__username) for x in [rel_src_dir, rel_tar_dir])
 
+        logger.debug("Absolute paths: %s | %s", self.__abs_src_dir, self.__abs_tar_dir)
+
+        if self.__client:
+            # create temp folder
+            self.__temporary_folder = tempfile.mkdtemp()
+            logger.debug("A temporary folder has been created: %s", self.__temporary_folder)
+
+
         if not self.__client:
-            logger.debug("Not using dropbox...")
             if not os.path.exists(self.__abs_tar_dir):
                 logger.warning("Seems that %s does not exist on your local drive. Creating it... ", self.__abs_tar_dir)
                 os.makedirs(self.__abs_tar_dir)
                 logger.info("Folder structure created, you are welcome :)")
 
-        logger.info("Renderfarm path: %s", self.__abs_src_dir)
-        logger.info("Target path: %s", self.__abs_tar_dir)
+        logger.info("Will be watching for frames at this renderfarm path: %s", self.__abs_src_dir)
 
     def run(self, delay_seconds):
-        with pysftp.Connection(
-            self.__host,
-            self.__username,
-            password=self.__password
-        ) as sftp:
-            sftp.chdir(self.__abs_src_dir)
-            while True:
-                current_dir = sftp.pwd
-                listed_stuff = sftp.listdir()
-                for item in listed_stuff:
-                    if item not in self.__processed and os.path.splitext(item)[1] in self.extensions:
-                        logger.info("New item dropped: %s", item)
+        try:
+            with pysftp.Connection(
+                self.__host,
+                self.__username,
+                password=self.__password
+            ) as sftp:
+                sftp.chdir(self.__abs_src_dir)
+                while True:
+                    current_dir = sftp.pwd
+                    listed_stuff = sftp.listdir()
+                    for item in listed_stuff:
+                        if item not in self.__processed and os.path.splitext(item)[1] in self.extensions:
+                            logger.info("New item dropped: %s", item)
 
-                        source_absolute_filepath = os.path.join(sftp.pwd, item)
-                        target_absolute_filepath = os.path.join(self.__abs_tar_dir, item)
+                            source_absolute_filepath = os.path.join(sftp.pwd, item)
+                            target_absolute_filepath =  os.path.join(self.__abs_tar_dir if self.__client else self.__temporary_folder, item)
 
-                        logger.debug("Source absolute filepath: %s", source_absolute_filepath)
-                        logger.debug("Target absolute filepath: %s", target_absolute_filepath)
+                            logger.debug("Source absolute filepath: %s", source_absolute_filepath)
+                            logger.debug("Target absolute filepath: %s", target_absolute_filepath)
 
-                        logger.debug("Getting the file from server")
-                        sftp.get(item, target_absolute_filepath)
-                        logger.debug("Removing file from server")
-                        sftp.remove(source_absolute_filepath)
+                            logger.debug("Getting the file from server")
+                            sftp.get(item, target_absolute_filepath)
+                            logger.debug("Removing file from server")
+                            sftp.remove(source_absolute_filepath)
 
-                        if self.__client:
-                            logger.debug("Need to move file to dropbox")
-                            logger.debug("Opening file: %s", target_absolute_filepath)
-                            f = open(target_absolute_filepath, 'rb')
-                            dbox_path = '/'.join(target_absolute_filepath.split(os.path.sep)[3:])
-                            logger.info("Uploading %s to Dropbox...", dbox_path)
-                            self.__client.put_file(dbox_path, f)
-                            f.close()
-                            logger.info("%s uploaded to Dropbox", dbox_path)
-                            os.remove(target_absolute_filepath)
-                            logger.debug("Removed local file %s", target_absolute_filepath)
+                            if self.__client:
+                                logger.debug("Need to move file to dropbox")
+                                logger.debug("Opening file: %s", target_absolute_filepath)
+                                f = open(target_absolute_filepath, 'rb')
+                                dbox_path = '/'.join(target_absolute_filepath.split('/')[3:])
+                                logger.info("Uploading %s to Dropbox...", dbox_path)
+                                self.__client.put_file(dbox_path, f)
+                                f.close()
+                                logger.info("%s has been copied to Dropbox under %s", source_absolute_filepath, dbox_path)
+                                os.remove(target_absolute_filepath)
+                                logger.debug("Removed local file %s", target_absolute_filepath)
 
-                        self.__processed.append(item)
+                            self.__processed.append(item)
 
-                        self.__current_count += 1
+                            self.__current_count += 1
 
-                        logger.debug("__send_mail_after_count: %s", self.__send_mail_after_count)
-                        logger.debug("__current_count: %s", self.__current_count)
+                            logger.debug("__send_mail_after_count: %s", self.__send_mail_after_count)
+                            logger.debug("__current_count: %s", self.__current_count)
 
-                        logger.debug("bool(current >= count) --> %s", str(bool(self.__current_count >= self.__send_mail_after_count)))
+                            logger.debug("bool(current >= count) --> %s", str(bool(self.__current_count >= self.__send_mail_after_count)))
 
-                        if self.__current_count >= self.__send_mail_after_count:
-                            logger.debug("Sending email.")
-                            email_sender(self.__email_address, self.__processed)
+                            if self.__current_count >= self.__send_mail_after_count:
+                                logger.debug("Sending email.")
+                                email_sender(self.__email_address, self.__processed)
 
-                time.sleep(delay_seconds)
+                    time.sleep(delay_seconds)
 
-        sftp.close()
+            sftp.close()
+
+        except AuthenticationException:
+            raise CerdaError("Looks like you entered the wrong password for your %s account" % getpass.getuser())
