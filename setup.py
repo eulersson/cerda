@@ -1,5 +1,6 @@
 
 from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
 
 setup(
     name='cerda',
@@ -10,7 +11,7 @@ setup(
     author_email='blanquer.ramon@gmail.com',
     license='MIT',
     keywords='renderfarm ncca transfer files watch',
-    packages=find_packages(exclude=['docs', 'tests']),
+    packages=find_packages(exclude=['docs', 'test']),
     install_requires=['coloredlogs', 'dropbox', 'pysftp'],
     extras_require={
         'docs': ['Sphinx', 'sphinx_rtd_theme'],
