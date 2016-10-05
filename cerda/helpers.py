@@ -80,7 +80,6 @@ def email_sender(email_address, processed_items):
     server.sendmail(fromaddr, toaddr, text)
     server.quit()
 
-
 def get_abs_form_rel(rel_dir, username):
     return os.path.join(
         '/',

@@ -31,6 +31,7 @@ class FarmWatcher:
         """
         self.__host = host
         self.__username = username
+        print password
         self.__password = password
         self.__client = client
         self.__processed = []

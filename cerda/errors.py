@@ -1,0 +1,2 @@
+class CerdaError(Exception):
+    pass
