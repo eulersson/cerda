@@ -3,10 +3,10 @@ import logging
 
 import dropbox
 
-logger = logging.getLogger("watchfarm")
+logger = logging.getLogger("cerda")
 
 def dropbox_setup():
-    token_path = os.path.join(os.path.expanduser(os.path.sep.join(['~', '.watchfarm'])), 'dbox_token.txt')
+    token_path = os.path.join(os.path.expanduser(os.path.sep.join(['~', '.cerda'])), 'dbox_token.txt')
     logger.debug("Token location: %s", token_path)
 
     APP_KEY = 'gpf11zjrtp5od4x'

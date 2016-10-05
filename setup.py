@@ -2,10 +2,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='watchfarm',
+    name='cerda',
     version='0.1.0',
     description='An NCCA renderfarm SFTP watcher',
-    url='https://github.com/docwhite/watchfarm',
+    url='https://github.com/docwhite/cerda',
     author='Ramon Blanquer',
     author_email='blanquer.ramon@gmail.com',
     license='MIT',
@@ -18,7 +18,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'watchfarm=watchfarm:main',
+            'cerda=cerda:main',
         ],
     },
 )

@@ -1,5 +1,5 @@
-watchfarm
-=========
+cerda
+=====
 
 .. note ::
     This is intended to be used at NCCA labs only.
@@ -41,8 +41,8 @@ Usage
 
 ::
 
-    watchfarm -h
-    usage: watchfarm [-h] [-s SOURCE] [-d DESTINATION]
+    cerda -h
+    usage: cerda [-h] [-s SOURCE] [-d DESTINATION]
 
     Process credentials and paths for farm watcher
 
@@ -66,11 +66,11 @@ My renderfarm is rendering out the frames at ``/home/i7243466/project1/render``
 on the **tete** server. I want the frames to get transfered to my local drive at
 location ``/home/i7243466/rendered/frames``::
 
-    $ watchfarm --source project1/render --destination rendered/frames
+    $ cerda --source project1/render --destination rendered/frames
 
 Or you could also use the short flags::
 
-    $ watchfarm -s project1/render --destination rendered/frames
+    $ cerda -s project1/render --destination rendered/frames
 
 
 

@@ -4,7 +4,7 @@ import time
 
 import pysftp
 
-logger = logging.getLogger('watchfarm')
+logger = logging.getLogger('cerda')
 
 from helpers import get_abs_form_rel
 

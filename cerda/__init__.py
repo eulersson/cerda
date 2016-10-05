@@ -6,7 +6,7 @@ import os
 import coloredlogs
 import dropbox
 
-logger = logging.getLogger('watchfarm')
+logger = logging.getLogger('cerda')
 logger.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler()

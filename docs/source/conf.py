@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# watchfarm documentation build configuration file, created by
+# cerda documentation build configuration file, created by
 # sphinx-quickstart on Mon Oct  3 19:23:35 2016.
 #
 # This file is execfile()d with the current directory set to its
@@ -18,8 +18,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../watchfarm'))
-print "----", os.path.abspath('../../watchfarm')
+sys.path.insert(0, os.path.abspath('../../cerda'))
+print "----", os.path.abspath('../../cerda')
 
 # -- General configuration ------------------------------------------------
 
@@ -33,6 +33,7 @@ print "----", os.path.abspath('../../watchfarm')
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.githubpages',
+    'sphinx.ext.napoleon'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -52,7 +53,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'watchfarm'
+project = u'cerda'
 copyright = u'2016, Ramon Blanquer'
 author = u'Ramon Blanquer'
 
@@ -137,7 +138,7 @@ html_theme = 'sphinx_rtd_theme'
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
 #
-# html_title = u'watchfarm v0.1.0'
+# html_title = u'cerda v0.1.0'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #
@@ -237,7 +238,7 @@ html_static_path = ['_static']
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'watchfarmdoc'
+htmlhelp_basename = 'cerdadoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -263,7 +264,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'watchfarm.tex', u'watchfarm Documentation',
+    (master_doc, 'cerda.tex', u'cerda Documentation',
      u'Ramon Blanquer', 'manual'),
 ]
 
@@ -305,7 +306,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'watchfarm', u'watchfarm Documentation',
+    (master_doc, 'cerda', u'cerda Documentation',
      [author], 1)
 ]
 
@@ -320,8 +321,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'watchfarm', u'watchfarm Documentation',
-     author, 'watchfarm', 'One line description of project.',
+    (master_doc, 'cerda', u'cerda Documentation',
+     author, 'cerda', 'One line description of project.',
      'Miscellaneous'),
 ]
 
