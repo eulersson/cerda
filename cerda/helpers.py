@@ -18,8 +18,8 @@ def dropbox_setup():
     token_path = os.path.join(os.path.expanduser(os.path.sep.join(['~', '.cerda'])), 'dbox_token.txt')
     logger.debug("Token location: %s", token_path)
 
-    APP_KEY = 'gpf11zjrtp5od4x'
-    APP_SECRET = 'cyk4k6zgmraajy7'
+    APP_KEY = 'g00qsmj1c10wc7o'
+    APP_SECRET = 'szjgn373r8xbnxb'
 
     logger.debug("Does token file exist on disk?")
 
@@ -31,11 +31,9 @@ def dropbox_setup():
         token_file.close()
 
     else:
-        logger.info((
+        logger.info(
             "You will have to give me permissions to upload stuff to your"
-            "Dropbox account. In order for me to do that you will need to"
-            "authorize Cerda in your account, don't worry it's just a one time"
-            "thing.")
+            "Dropbox account. Don't worry it's just a one time thing."
         )
 
         flow = dropbox.client.DropboxOAuth2FlowNoRedirect(APP_KEY, APP_SECRET)
@@ -63,7 +61,12 @@ def dropbox_setup():
         token_file.close()
 
     client = dropbox.client.DropboxClient(access_token)
-    logger.info("Yay! %s, I just hooked to your Dropbox account!", client.account_info()['display_name'])
+    try:
+        logger.info("Yay! %s, I just hooked to your Dropbox account!", client.account_info()['display_name'])
+    except dropbox.rest.ErrorResponse:
+        os.remove(token_path)
+        CerdaError("Something went wrong. I deleted the token. Try again. Sorry.")
+
     return client
 
 def email_sender(email_address, processed_items):
@@ -136,6 +139,7 @@ def parse_args(args):
     # Validation on -e / --every to be implemented
 
     # Validation on -c / --count
+    
     if args.count < 1:
         raise CerdaError("You want to be sent an email after %s frames have been rendered? That does not make any sense..." % args.count)
 

@@ -40,6 +40,10 @@ from errors import CerdaError
 
 def main():
     logger.info("Hey I am Cerda, your render farm frame-transfering assistant!")
+    logger.info(
+        "I created a log file: %s, If you got any problems speak to Ramon "
+        "(blanquer.ramon@gmail.com) or send him that file." % log_filename
+    )
     (user, password, source, target, email, count, client, every) = parse_args(sys.argv[1:])
     watcher = FarmWatcher(user, password, source, target, notify=(email, count), client=client)
     watcher.run(every)

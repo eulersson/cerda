@@ -14,7 +14,7 @@ setup(
     packages=find_packages(exclude=['docs', 'test']),
     install_requires=['coloredlogs', 'dropbox', 'pysftp'],
     extras_require={
-        'docs': ['Sphinx', 'sphinx_rtd_theme'],
+        'docs': ['Sphinx', 'sphinx-rtd-theme'],
         'test': ['pytest', 'pytest-cov'],
     },
     entry_points={
