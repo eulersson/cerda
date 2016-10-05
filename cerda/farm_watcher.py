@@ -84,9 +84,8 @@ class FarmWatcher:
                 os.makedirs(self.__abs_tar_dir)
                 logger.info("Folder structure created, you are welcome :)")
 
-        logger.info("Will be watching for frames at this renderfarm path: %s", self.__abs_src_dir)
-
     def run(self, delay_seconds):
+        logger.info("I am watching for frames at this renderfarm path: %s", self.__abs_src_dir)
         try:
             with pysftp.Connection(
                 self.__host,
