@@ -44,6 +44,11 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 def main():
+    if '-h' in sys.argv or '--help' in sys.argv:
+        # Just show the help.
+        parse_args(sys.argv[1:])
+        sys.exit(0)
+
     signal.signal(signal.SIGINT, signal_handler)
     print "\033[38;5;213m                                     `--:::--.                  `os/        \033[0m"
     print "\033[38;5;213m                                     yo+//+++osso+/:/+++++++/:.`y/:ss       \033[0m"
@@ -66,11 +71,11 @@ def main():
     print "\033[38;5;213m             .N::-----------------------:::/ohyo+/:---------::+oso:`        \033[0m"
     print "\033[38;5;213m              m+:--------:----------+:-------sddsssssssssssso+/-            \033[0m"
     print "\033[38;5;213m              sy:-------:s//:::----:y:-------dss:::::::+o`                  \033[0m"
-    print "\033[38;5;213m              .m+:------hoshhyysssyyh:-------moy:::----y/                   \033[0m"
-    print "\033[38;5;213m               oNy+::--ss  :s//+++d-m:------:h:h::----:d`                   \033[0m"
-    print "\033[38;5;213m                yNmmdhdd`   dmdhhd- m/------y/`Nys+++od:                    \033[0m"
-    print "\033[38;5;213m                `ymmmmd`    .mdmm:  sy/:::/oh  yNmmNmm/                     \033[0m"
-    print "\033[38;5;213m                  -`os`      -`.`   `mmmmmmm.  .mm+hh-                      \033[0m"
+    print "\033[38;5;213m              .m+:------hoshhyysssyyh:-------moy:::----y/   !\________      \033[0m"
+    print "\033[38;5;213m               oNy+::--ss  :s//+++d-m:------:h:h::----:d`  / OINK!    \     \033[0m"
+    print "\033[38;5;213m                yNmmdhdd`   dmdhhd- m/------y/`Nys+++od:  /     OINK!  |    \033[0m"
+    print "\033[38;5;213m                `ymmmmd`    .mdmm:  sy/:::/oh  yNmmNmm/   | I'm Cerda  |    \033[0m"
+    print "\033[38;5;213m                  -`os`      -`.`   `mmmmmmm.  .mm+hh-     \_____:D _ /     \033[0m"
     print "\033[38;5;213m                                     -mmmhd:                                \033[0m"
     print "\033[38;5;213m                                      `/:                                   \033[0m"
 
@@ -81,7 +86,7 @@ def main():
         "(blanquer.ramon@gmail.com) or send him that file." % log_filename
     )
     (user, password, source, target, email, count, client, every) = parse_args(sys.argv[1:])
-    logger.info("I will parse your command. Let me guess what you want to do:")
+    logger.info("I will parse your command. Let me recap what you want to do:")
     msg =  "\n\n- Watch for frames that drop in /home/%s/%s under the renderfarm location\n" % (user, source)
 
     if client is not None:
