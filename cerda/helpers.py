@@ -3,6 +3,11 @@ import logging
 
 import dropbox
 
+import smtplib
+
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
+
 logger = logging.getLogger("cerda")
 
 def dropbox_setup():
@@ -51,6 +56,30 @@ def dropbox_setup():
     client = dropbox.client.DropboxClient(access_token)
     logger.info("Oh, hello %s", client.account_info()['display_name'])
     return client
+
+def email_sender(email_address, processed_items):
+    logger.debug("Preparing email for %s", email_address)
+    logger.debug("Processed items are %s", processed_items)
+    
+    fromaddr = "cerda.ncca@gmail.com"
+    toaddr = email_address
+
+    msg = MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "cerda: Report"
+
+    body = "Renders are finished!\n%s" % processed_items
+
+    msg.attach(MIMEText(body, 'plain'))
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(fromaddr, "NCCA2016cerda")
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()
+
 
 def get_abs_form_rel(rel_dir, username):
     return os.path.join(

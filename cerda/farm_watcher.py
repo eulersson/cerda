@@ -7,12 +7,13 @@ import pysftp
 logger = logging.getLogger('cerda')
 
 from helpers import get_abs_form_rel
+from helpers import email_sender
 
 class FarmWatcher:
     """Core class of the command line application. Handles or the file input
     output operations."""
     extensions = ['.png', '.exr', '.jpg', '.jpeg', '.txt']
-    def __init__(self, username, password, rel_src_dir, rel_tar_dir, host='tete', client=None):
+    def __init__(self, username, password, rel_src_dir, rel_tar_dir, host='tete', notify=None, client=None):
         """Farm watcher constructor initializes a state parsed from arguments.
 
         Args:
@@ -33,6 +34,13 @@ class FarmWatcher:
         self.__password = password
         self.__client = client
         self.__processed = []
+        self.__notify = bool(notify)
+
+        logger.debug("notify: %s", notify)
+
+        if self.__notify:
+            (self.__email_address, self.__send_mail_after_count) = notify
+            self.__current_count = 0
 
         self.__abs_src_dir, self.__abs_tar_dir = (get_abs_form_rel(x, self.__username) for x in [rel_src_dir, rel_tar_dir])
 
@@ -84,6 +92,17 @@ class FarmWatcher:
                             logger.debug("Removed local file %s", target_absolute_filepath)
 
                         self.__processed.append(item)
+
+                        self.__current_count += 1
+
+                        logger.debug("__send_mail_after_count: %s", self.__send_mail_after_count)
+                        logger.debug("__current_count: %s", self.__current_count)
+
+                        logger.debug("bool(current >= count) --> %s", str(bool(self.__current_count >= self.__send_mail_after_count)))
+
+                        if self.__current_count >= self.__send_mail_after_count:
+                            logger.debug("Sending email.")
+                            email_sender(self.__email_address, self.__processed)
 
                 time.sleep(delay_seconds)
 
