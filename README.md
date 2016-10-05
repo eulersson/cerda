@@ -6,7 +6,7 @@ that get rendered at renderfarm to either local disk or Dropbox account. Also
 there is a notification feature that allows you to get sent an email after a 
 specific number of frames get rendered. Cool, innit?
 
-*See documentation:* https://docwhite.github.io/cerda/index.html
+*See documentation:* https://docwhite.github.io/cerda
 
 **NOTE:** This is intended to be used at NCCA labs only.
 
