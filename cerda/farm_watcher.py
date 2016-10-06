@@ -159,8 +159,10 @@ class FarmWatcher:
                 logger.debug("Need to move file to dropbox")
                 logger.debug("Opening file: %s", target_absolute_filepath)
 
-                f = open(target_absolute_filepath, 'rb')
-                dbox_path = '/'.join(target_absolute_filepath.split('/')[3:])
+                file_temporary_location = os.path.join(destination, item)
+
+                f = open(file_temporary_location, 'rb')
+                dbox_path = '/'.join(os.path.join(self.__abs_tar_dir, item).split('/')[3:])
 
                 logger.info("Uploading %s to Dropbox...", dbox_path)
 
