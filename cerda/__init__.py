@@ -1,49 +1,55 @@
+import datetime
 import logging
 import os
-import sys
 import signal
-
-import datetime
+import sys
 
 import coloredlogs
 import dropbox
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+from cerda.errors import CerdaError
+from cerda.farm_watcher import FarmWatcher
+from cerda.helpers import dropbox_setup, parse_args
 
-# Colored stream handler
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
+def setup_logging():
+    """Sets up a logger with two handlers. The santard output handler will print
+    info logger messages to the terminal using colors. The file handler will
+    print debug messages to a file under ~/.cerda/logs/
+    """
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
 
-stream_formatter = coloredlogs.ColoredFormatter(fmt='%(asctime)s %(levelname)s %(message)s')
-ch.setFormatter(stream_formatter)
+    # Colored stream handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
 
-# File handler
-log_filename = datetime.datetime.utcnow().strftime("cerda.%Y%m%d-%H%M%S.log")
-logs_dir = os.path.expanduser(os.path.sep.join(['~', '.cerda', 'logs']))
+    stream_formatter = coloredlogs.ColoredFormatter(fmt='%(asctime)s %(levelname)s %(message)s')
+    ch.setFormatter(stream_formatter)
 
-if not os.path.exists(logs_dir):
-    os.makedirs(logs_dir)
+    # File handler
+    log_filename = datetime.datetime.utcnow().strftime("cerda.%Y%m%d-%H%M%S.log")
+    logs_dir = os.path.expanduser(os.path.sep.join(['~', '.cerda', 'logs']))
 
-fh = logging.FileHandler(os.path.join(logs_dir, log_filename))
-fh.setLevel(logging.DEBUG)
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
 
-file_formatter = logging.Formatter(fmt='[%(levelname)s]%(name)s: %(message)s')
-fh.setFormatter(file_formatter)
+    fh = logging.FileHandler(os.path.join(logs_dir, log_filename))
+    fh.setLevel(logging.DEBUG)
 
-# Add handlers
-logger.addHandler(ch)
-logger.addHandler(fh)
+    file_formatter = logging.Formatter(fmt='[%(levelname)s]%(name)s: %(message)s')
+    fh.setFormatter(file_formatter)
 
-from farm_watcher import FarmWatcher
-from helpers import dropbox_setup, parse_args
-from errors import CerdaError
+    # Add handlers
+    logger.addHandler(ch)
+    logger.addHandler(fh)
+
 
 def signal_handler(signal, frame):
     logger.info("\nOh, you leaving? See you soon! :D")
     sys.exit(0)
 
 def main():
+    setup_logging()
     if '-h' in sys.argv or '--help' in sys.argv:
         # Just show the help.
         parse_args(sys.argv[1:])

@@ -18,7 +18,9 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../cerda'))
+sys.path.insert(0, os.path.abspath('../..'))
+
+autodoc_mock_imports = ['coloredlogs', 'dropbox']
 
 # -- General configuration ------------------------------------------------
 
