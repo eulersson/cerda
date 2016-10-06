@@ -22,6 +22,12 @@ as I like to keep things simple.
 http://github.com/docwhite/cerda or directly by speaking to that Spanish shy
 guy in the labs, or drop me an email blanquer.ramon@gmail.com
 
+Upcoming features:
+
+* **Direct integration with Qube**: There will be no need to do all the steps to
+  dispatch the job to the render farm.
+* Improved mail formatting with **thumbnails** of what has been rendered.
+
 Prerequisites
 =============
 
