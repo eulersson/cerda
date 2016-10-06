@@ -33,4 +33,6 @@ Close the shell and start a new one. Alternatively reload your profile::
 
     $ source ~/.bashrc
 
-Done!
+Done! Now proceed to installation... Which is just one line of code::
+    
+    $ pip install cerda --user
