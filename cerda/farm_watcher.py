@@ -112,7 +112,7 @@ class FarmWatcher:
         if not self.__client:
             if not os.path.exists(self.__abs_tar_dir):
                 logger.warning(
-                    "Seems that %s does not exist on your local drive."
+                    "Seems that %s does not exist on your local drive. "
                     "Creating it... ",
                     self.__abs_tar_dir
                 )

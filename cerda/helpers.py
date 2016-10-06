@@ -50,7 +50,7 @@ def dropbox_setup():
 
     else:
         logger.info(
-            "You will have to give me permissions to upload stuff to your"
+            "You will have to give me permissions to upload stuff to your "
             "Dropbox account. Don't worry it's just a one time thing."
         )
 
