@@ -38,7 +38,7 @@ Get the pip installer script with wget (downloads a file form the web)::
 
 Install pip locally (it will get installed to ``~/.local``)::
     
-    $ python ~/.get-pip --user
+    $ python ~/get-pip.py --user
     
 Append the binaries directory that contains all the pip executables to your
 ``$PATH`` variable. Either do it manually or simply execute this line of code
@@ -55,7 +55,7 @@ Installation
 
 Now you got pip up and running! The next move is to install the tool using it::
 
-    $ pip install cerda
+    $ pip install cerda --user
     
 Usage
 =====
