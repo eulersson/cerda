@@ -58,6 +58,9 @@ Now you got pip up and running! The next move is to install the tool using it
     $ pip install cerda --user
     
 ## Usage
+
+Check out the help command ``cerda -h``::
+
     usage: cerda [-h] [-dbox] [-e EMAIL] [-c COUNT] [-r EVERY] source target
 
     An NCCA render farm collector.

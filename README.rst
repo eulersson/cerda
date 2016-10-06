@@ -67,6 +67,7 @@ Usage
 =====
 
 Check out the help command ``cerda -h``::
+
     usage: cerda [-h] [-dbox] [-e EMAIL] [-c COUNT] [-r EVERY] source target
 
     An NCCA render farm collector.
