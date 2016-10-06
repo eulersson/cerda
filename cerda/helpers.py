@@ -24,7 +24,7 @@ def dropbox_setup():
     contain any username or passwords, so the user is safe.
 
     Returns:
-        dropbox.client.DropboxClient: Initialized Dropbox client object
+        obj: Initialized Dropbox client object
 
     """
     token_path = os.path.join(

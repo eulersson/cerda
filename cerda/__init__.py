@@ -88,7 +88,10 @@ def signal_handler(signal, frame):
     logger.info("\nOh, you leaving? See you soon! :D")
     sys.exit(0)
 
-logger = setup_logging()
+try:  # so sphinx does not complain...
+    logger = setup_logging()
+except:
+    pass
 
 def main():    
     if '-h' in sys.argv or '--help' in sys.argv:

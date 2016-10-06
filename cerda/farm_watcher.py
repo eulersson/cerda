@@ -42,7 +42,7 @@ class FarmWatcher:
             notify (tuple): tuple (str, int) containing the email address to
                 send the email to and the number of frames that need to be
                 picked up before sending it.
-            client (dropbox.client.DropboxClient): the Dropbox client instance 
+            client (obj): the Dropbox client instance 
                 used to upload the files to the account. It has been initialized
                 already. It is ready to go.
         """
@@ -198,7 +198,7 @@ class FarmWatcher:
         
         Args:
             delay_seconds (int): after checking if there is new files it will
-            sleep this amount of seconds before checking again.
+                sleep this amount of seconds before checking again.
 
         """
         logger.info(
