@@ -15,6 +15,9 @@ def setup_logging():
     """Sets up a logger with two handlers. The santard output handler will print
     info logger messages to the terminal using colors. The file handler will
     print debug messages to a file under ~/.cerda/logs/
+
+    Returns:
+        logger (logging.Logger): Initialized with all the right handles.
     """
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
@@ -43,19 +46,6 @@ def setup_logging():
     logger.addHandler(ch)
     logger.addHandler(fh)
 
-
-def signal_handler(signal, frame):
-    logger.info("\nOh, you leaving? See you soon! :D")
-    sys.exit(0)
-
-def main():
-    setup_logging()
-    if '-h' in sys.argv or '--help' in sys.argv:
-        # Just show the help.
-        parse_args(sys.argv[1:])
-        sys.exit(0)
-
-    signal.signal(signal.SIGINT, signal_handler)
     print "\033[38;5;213m                                     `--:::--.                  `os/        \033[0m"
     print "\033[38;5;213m                                     yo+//+++osso+/:/+++++++/:.`y/:ss       \033[0m"
     print "\033[38;5;213m                                     d:-::::/+ossys+:--------/oyss/:y+      \033[0m"
@@ -90,6 +80,24 @@ def main():
         "I created a log file: %s under ~/.cerda/logs, If you got any problems speak to Ramon "
         "(blanquer.ramon@gmail.com) or send him that file." % log_filename
     )
+
+    return logger
+
+
+def signal_handler(signal, frame):
+    logger.info("\nOh, you leaving? See you soon! :D")
+    sys.exit(0)
+
+logger = setup_logging()
+
+def main():    
+    if '-h' in sys.argv or '--help' in sys.argv:
+        # Just show the help.
+        parse_args(sys.argv[1:])
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+
     (user, password, source, target, email, count, client, every) = parse_args(sys.argv[1:])
 
     make_integer_if_exists_else_none = lambda x: int(x) if x is not None else None

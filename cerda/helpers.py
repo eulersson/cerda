@@ -165,9 +165,9 @@ epilog = ("Examples: \n\n"
           "to get transfered to my Dropbox account under /some/folder and when "
           "it has finished rendering, which means 20 frames get collected, send "
           "me an email notification:\n\n"
-          "\t$ cerda --source project1/render --target some/folder --dropbox --email blanquer.ramon@gmail.com --count 20\n"
+          "\t$ cerda project1/render some/folder --dropbox --email blanquer.ramon@gmail.com --count 20\n"
           "\nor\n"
-          "\t$ cerda -s project1/render -t rendered/frames -dbox -e blanquer.ramon@gmail.com -c 20\n")
+          "\t$ cerda project1/render rendered/frames -dbox -e blanquer.ramon@gmail.com -c 20\n")
 
 def parse_args(args):
     """Parsing and validation of all the user supplied arguments.
