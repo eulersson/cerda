@@ -80,12 +80,16 @@ def main():
     print "\033[38;5;213m                                      `/:                                   \033[0m"
 
     logger.info("Hey I am Cerda, your render farm frame-transfering assistant!")
-    logger.info("From the options you passed I guess you want to do the following:")
     logger.info(
-        "I created a log file: %s, If you got any problems speak to Ramon "
+        "I created a log file: %s under ~/.cerda/logs, If you got any problems speak to Ramon "
         "(blanquer.ramon@gmail.com) or send him that file." % log_filename
     )
     (user, password, source, target, email, count, client, every) = parse_args(sys.argv[1:])
+
+    make_integer_if_exists_else_none = lambda x: int(x) if x is not None else None
+
+    every, count = map(make_integer_if_exists_else_none, [every, count])
+
     logger.info("I will parse your command. Let me recap what you want to do:")
     msg =  "\n\n- Watch for frames that drop in /home/%s/%s under the renderfarm location\n" % (user, source)
 
@@ -110,5 +114,10 @@ def main():
         logger.error("Shit I'm sorry. I'll get you out of here. Bye.")
         sys.exit(0)
 
-    watcher = FarmWatcher(user, password, source, target, notify=(email, count), client=client)
+    if email and count:
+        notify = (email, count)
+    else:
+        notify = None
+
+    watcher = FarmWatcher(user, password, source, target, notify=notify, client=client)
     watcher.run(every)

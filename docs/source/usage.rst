@@ -6,18 +6,18 @@ Usage
 
 ::
 
-    usage: cerda [-h] -s SOURCE -t TARGET [-dbox] [-m EMAIL] [-c COUNT] [-r EVERY]
+    usage: cerda [-h] [-dbox] [-e EMAIL] [-c COUNT] [-r EVERY] source target
 
-    Process credentials and paths for farm watcher
+    An NCCA render farm collector.
+
+    positional arguments:
+      source                Remote location path (relative to home) where the
+                            frames get generated.
+      target                Destination location path where you would like the
+                            frames to get sent to.
 
     optional arguments:
       -h, --help            show this help message and exit
-      -s SOURCE, --source SOURCE
-                            Remote location path (relative to home) where the
-                            frames get generated.
-      -t TARGET, --target TARGET
-                            Destination location path where you would like the
-                            frames to get sent to.
       -dbox, --dropbox      Will send the files to the root path of your dropbox
                             account.
       -e EMAIL, --email EMAIL

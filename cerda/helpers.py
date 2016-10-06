@@ -122,7 +122,12 @@ def email_sender(email_address, processed_items):
     server.starttls()
     server.login(fromaddr, "NCCA2016cerda")
     text = msg.as_string()
-    server.sendmail(fromaddr, toaddr, text)
+
+    try:
+        logger.info("Sending an email to %s", toaddr)
+        server.sendmail(fromaddr, toaddr, text)
+    except:
+        logger.error("Couldn't send an email. Check the logs under ~/.cerda/logs/")
     server.quit()
 
 def get_abs_form_rel(rel_dir, username):
@@ -147,13 +152,22 @@ def get_abs_form_rel(rel_dir, username):
     )
 
 # Descriptions for the parser
-p_des = "Process credentials and paths for farm watcher"
+p_des = "An NCCA render farm collector."
 s_des = "Remote location path (relative to home) where the frames get generated."
 t_des = "Destination location path where you would like the frames to get sent to."
 d_des = "Will send the files to the root path of your dropbox account."
 m_des = "Email address to send notification to after -c frames have been rendered."
 c_des = "At this numer of frames, send an email to the address specified with -m flag."
 e_des = "How often to check for frames dropped (in seconds)"
+epilog = ("Examples: \n\n"
+          "My renderfarm is rendering out the frames at"
+          "/home/i7243466/project1/render on the tete server. I want the frames "
+          "to get transfered to my Dropbox account under /some/folder and when "
+          "it has finished rendering, which means 20 frames get collected, send "
+          "me an email notification:\n\n"
+          "\t$ cerda --source project1/render --target some/folder --dropbox --email blanquer.ramon@gmail.com --count 20\n"
+          "\nor\n"
+          "\t$ cerda -s project1/render -t rendered/frames -dbox -e blanquer.ramon@gmail.com -c 20\n")
 
 def parse_args(args):
     """Parsing and validation of all the user supplied arguments.
@@ -175,9 +189,9 @@ def parse_args(args):
 
     """
 
-    parser = argparse.ArgumentParser(description=p_des)
-    parser.add_argument('-s', '--source', help=s_des, required=True)
-    parser.add_argument('-t', '--target', help=t_des, required=True)
+    parser = argparse.ArgumentParser(description=p_des, epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('source', help=s_des)
+    parser.add_argument('target', help=t_des)
     parser.add_argument('-dbox', '--dropbox', help=d_des, action='store_true')
     parser.add_argument('-e', '--email', help=m_des)
     parser.add_argument('-c', '--count', help=c_des, type=int)
@@ -209,7 +223,7 @@ def parse_args(args):
         )
 
     # Validation on -c / --count
-    if args.count < 1:
+    if args.count is not None and args.count < 1:
         raise CerdaError(
             "You want to be sent an email after %s frames have been rendered?"
             "That does not make any sense..." % args.count
@@ -223,4 +237,4 @@ def parse_args(args):
     user = getpass.getuser()
     password = getpass.getpass("Password for %s: " % user)
 
-    return (user, password, args.source, args.target, args.email, int(args.count), client, args.every)
+    return (user, password, args.source, args.target, args.email, args.count, client, args.every)

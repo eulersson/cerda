@@ -50,37 +50,50 @@ class FarmWatcher:
         self.__username = username
         self.__password = password
         self.__client = client
+        self.__current_count = 0
         self.__processed = []
         self.__notify = bool(notify)
         self.__temporary_folder = None
+        self.__notify_enabled = False
 
         report = ("\n\nREPORT\n"
                  "------\n"
                  "- Username: %s\n"
                  "- Relative Source Directory: %s\n"
                  "- Relative Target Directory: %s\n"
-                 "- Host: %s\n"
-                 "- Notification Email: %s\n"
-                 "- Notification Count: %d\n"
-                 "- Dropbox Client: %s\n\n") % ( 
+                 "- Host: %s\n") % ( 
                         username,
                         rel_src_dir,
                         rel_tar_dir,
-                        host,
-                        notify[0],
-                        notify[1],
-                        str(client)
+                        host
                     )
+
+        if notify is not None:
+            self.__notify_enabled = True
+            if notify[0] is not None:
+                report += "- Notification Email: %s\n" % notify[0]
+            if notify[1] is not None:
+                report += "- Notify after %d dropped frames\n" % notify[1]
+        else:
+            report += "- Email: NO"
+
+        if client is not None:
+            report += "- Dropbox Client: %s\n" % str(client)
+        else:
+            report += "- Dropbox: NO"
+
+        report += "\n"
+
         logger.debug(report)
         if self.__notify:
             (self.__email_address, self.__send_mail_after_count) = notify
-            self.__current_count = 0
+            
 
-        logger.info(
-            "I will send you an email to %s after %s frames have been collected",
-            self.__email_address,
-            self.__send_mail_after_count
-        )
+            logger.info(
+                "I will send you an email to %s after %s frames have been collected",
+                self.__email_address,
+                self.__send_mail_after_count
+            )
 
         self.__abs_src_dir, self.__abs_tar_dir = (get_abs_form_rel(x, self.__username) for x in [rel_src_dir, rel_tar_dir])
 
@@ -106,18 +119,22 @@ class FarmWatcher:
                 os.makedirs(self.__abs_tar_dir)
                 logger.info("Folder structure created, you are welcome :)")
 
-    def process_item(self, item):
+    def process_item(self, sftp, item):
         """Performs all the I/O and logic operations on the current item.
 
         Args:
+            sftp (obj): sftp connection object.
             item (str): filename. The newly rendered file.
         """
         if item not in self.__processed and os.path.splitext(item)[1] in self.extensions:
             logger.info("New item dropped: %s", item)
 
             source_absolute_filepath = os.path.join(sftp.pwd, item)
+
+            destination = self.__abs_tar_dir if self.__client is None else self.__temporary_folder
+
             target_absolute_filepath =  os.path.join(
-                self.__abs_tar_dir if self.__client else self.__temporary_folder,
+                destination,
                 item
             )
 
@@ -161,20 +178,17 @@ class FarmWatcher:
             self.__current_count += 1
 
             logger.debug(
-                "__send_mail_after_count: %s", 
-                self.__send_mail_after_count
-            )
-            logger.debug(
                 "__current_count: %s", 
                 self.__current_count
             )
 
-            logger.debug(
-                "bool(current >= count) --> %s",
-                str(bool(self.__current_count >= self.__send_mail_after_count))
-            )
+            if self.__notify_enabled:
+                logger.debug(
+                    "__send_mail_after_count: %s", 
+                    self.__send_mail_after_count
+                )
 
-            if self.__current_count >= self.__send_mail_after_count:
+            if self.__notify_enabled and self.__current_count >= self.__send_mail_after_count:
                 logger.debug("Sending email.")
                 email_sender(self.__email_address, self.__processed)
 
@@ -197,14 +211,20 @@ class FarmWatcher:
                 self.__username,
                 password=self.__password
             ) as sftp:
-                sftp.chdir(self.__abs_src_dir)
+                try:
+                    sftp.chdir(self.__abs_src_dir)
+                except IOError:
+                    raise CerdaError(
+                        "The remote location %s could not be found on "
+                        "the renderfarm." % self.__abs_src_dir
+                    )
 
                 while True:
                     current_dir = sftp.pwd
                     listed_stuff = sftp.listdir()
 
                     for item in listed_stuff:
-                        process_item(item)
+                        self.process_item(sftp, item)
 
                     time.sleep(delay_seconds)
 
