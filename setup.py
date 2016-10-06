@@ -4,10 +4,10 @@ from setuptools.command.test import test as TestCommand
 
 setup(
     name='cerda',
-    version='0.1.0',
+    version='0.1.1',
     description='An NCCA renderfarm SFTP watcher',
     url='https://github.com/docwhite/cerda',
-    download_url='https://github.com/docwhite/cerda/tarball/0.1.0',
+    download_url='https://github.com/docwhite/cerda/tarball/0.1.1',
     author='Ramon Blanquer',
     author_email='blanquer.ramon@gmail.com',
     license='MIT',
