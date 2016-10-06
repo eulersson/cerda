@@ -1,14 +1,16 @@
 cerda
 #####
 
+.. image:: https://docwhite.github.io/cerda/_images/cerda_with_help.png
+
 Welcome to Cerda's documentation. This tool will allow you to transfer the files
 that get rendered at renderfarm to either local disk or Dropbox account. Also 
 there is a notification feature that allows you to get sent an email after a 
 specific number of frames get rendered. Cool, innit?
 
-*Documentation:* https://docwhite.github.io/cerda
-*Source:* https://github.com/docwhite/cerda
-*Bugs:* https://github.com/docwhite/cerda/issues
+* *Documentation:* https://docwhite.github.io/cerda
+* *Source:* https://github.com/docwhite/cerda
+* *Bugs:* https://github.com/docwhite/cerda/issues
 
 **NOTE:** This is intended to be used at NCCA labs only.
 
@@ -58,7 +60,7 @@ Now you got pip up and running! The next move is to install the tool using it::
 Usage
 =====
 
-::
+Check out the help command ``cerda -h``::
     usage: cerda [-h] [-dbox] [-e EMAIL] [-c COUNT] [-r EVERY] source target
 
     An NCCA render farm collector.
