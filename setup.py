@@ -19,7 +19,8 @@ test_requires = [
 
 doc_requires = [
     'Sphinx',
-    'sphinx-rtd-theme'
+    'sphinx-rtd-theme',
+    'lowdown'
 ]
 
 setup(

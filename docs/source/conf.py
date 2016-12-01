@@ -19,6 +19,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.expanduser('~/.virtualenvs/cerda/lib/python2.7/site-packages'))
 
 autodoc_mock_imports = ['coloredlogs', 'dropbox', 'imageio', 'resizeimage']
 
@@ -34,7 +35,8 @@ autodoc_mock_imports = ['coloredlogs', 'dropbox', 'imageio', 'resizeimage']
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.githubpages',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'lowdown'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

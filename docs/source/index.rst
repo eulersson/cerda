@@ -45,6 +45,7 @@ Upcoming features:
    installation
    usage
    apiref
+   releases
 
 Happy rendering folks!
 *Ramon Blanquer / docwhite*
