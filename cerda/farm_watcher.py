@@ -17,7 +17,7 @@ class FarmWatcher:
     """Core class of the command line application. Handles or the file input
     output operations."""
 
-    extensions = ['.png', '.exr', '.jpg', '.jpeg', '.txt']
+    extensions = ['.png', '.exr', '.jpg', '.jpeg', '.obj', '.bgeo', '.bgeo.sc', '.tiff']
 
     def __init__(
         self, 
