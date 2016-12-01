@@ -1,12 +1,12 @@
-
 from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
 
 requires = [
     'coloredlogs',
     'dropbox',
     'pysftp',
     'imageio',
+    'cffi',
+    'numpy',
     'python-resize-image'
 ]
 
