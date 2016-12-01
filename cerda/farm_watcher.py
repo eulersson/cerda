@@ -4,8 +4,12 @@ import os
 import tempfile
 import time
 
+import imageio
 import paramiko 
 import pysftp
+
+from PIL import Image
+from resizeimage import resizeimage
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +61,7 @@ class FarmWatcher:
         self.__notify = bool(notify)
         self.__temporary_folder = None
         self.__notify_enabled = False
+        self.__send_previews = False
 
         self.__extensions = list(set(custom_extensions) | set(self.default_extensions))
 
@@ -161,6 +166,22 @@ class FarmWatcher:
 
             sftp.get(item, target_absolute_filepath)
 
+            logger.debug("Generating image preview in case of image file")
+
+            if os.path.splitext(item)[1] in ['.png', '.jpg', '.jpeg', '.exr']:
+                logger.info("Opening %s" % target_absolute_filepath)
+                preview = imageio.imread(target_absolute_filepath)
+                preview_path = os.path.join(self.__abs_tar_dir, os.path.splitext(item)[0]+'.preview.png')
+                logger.info("Writing to %s" % preview_path)
+                imageio.imwrite(preview_path, preview)
+
+                with open(preview_path, 'r+b') as f:
+                    with Image.open(f) as image:
+                        cover = resizeimage.resize_width(image, 300)
+                        cover.save(preview_path, image.format)
+
+                self.__send_previews = True
+
             logger.debug("Removing file from server")
 
             sftp.remove(source_absolute_filepath)
@@ -202,7 +223,11 @@ class FarmWatcher:
 
             if self.__notify_enabled and self.__current_count >= self.__send_mail_after_count:
                 logger.debug("Sending email.")
-                email_sender(self.__email_address, self.__processed)
+                email_sender(self.__email_address,
+                             self.__abs_tar_dir,
+                             self.__processed,
+                             self.__send_previews)
+
 
     def run(self, delay_seconds):
         """Runs the watcher in a demonized fashion. When there is a new file it

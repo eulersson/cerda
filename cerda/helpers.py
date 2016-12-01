@@ -5,8 +5,9 @@ import os
 import re
 import smtplib
 
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 import dropbox
 
@@ -94,12 +95,13 @@ def dropbox_setup():
     return client
 
 
-def email_sender(email_address, processed_items):
+def email_sender(email_address, wd, processed_items, attach_previews=False):
     """Given an email and the list of rendered items it sends an email using
     Google's SMTP servers. The email will come from cerdancca@gmail.com.
 
     Args:
         email_address (str): address to send the email to.
+
         processed_items (list): list of rendered item names.
 
     """
@@ -107,7 +109,8 @@ def email_sender(email_address, processed_items):
 
     logger.debug("Preparing email for %s", email_address)
     logger.debug("Processed items are %s", processed_items)
-    
+
+    # Email preparation
     fromaddr = "cerda.ncca@gmail.com"
     toaddr = email_address
 
@@ -120,6 +123,23 @@ def email_sender(email_address, processed_items):
 
     msg.attach(MIMEText(body, 'plain'))
 
+    if attach_previews:
+        processed_items = map(lambda p: os.path.join(wd, os.path.splitext(p)[0]+'.preview.png'), processed_items)
+        logger.info("Attaching these items: %s" % processed_items)
+
+        logger.debug("PROCESSED ITEMS: %s" % processed_items)
+
+        # Attachements
+        for f in processed_items or []:
+            with open(f, "rb") as fil:
+                part = MIMEApplication(
+                    fil.read(),
+                    Name=os.path.basename(f)
+                )
+                part['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(f)
+                msg.attach(part)
+
+    # Sending email
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login(fromaddr, "NCCA2016cerda")
@@ -130,6 +150,12 @@ def email_sender(email_address, processed_items):
         server.sendmail(fromaddr, toaddr, text)
     except:
         logger.error("Couldn't send an email. Check the logs under ~/.cerda/logs/")
+
+    # Clean up the previews as they have been sent already
+    if attach_previews:
+        for preview in processed_items:
+            os.remove(preview)
+
     server.quit()
 
 

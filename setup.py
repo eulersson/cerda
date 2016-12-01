@@ -5,7 +5,9 @@ from setuptools.command.test import test as TestCommand
 requires = [
     'coloredlogs',
     'dropbox',
-    'pysftp'
+    'pysftp',
+    'imageio',
+    'python-resize-image'
 ]
 
 test_requires = [
