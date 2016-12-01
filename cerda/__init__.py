@@ -5,11 +5,11 @@ import signal
 import sys
 
 import coloredlogs
-import dropbox
 
 from cerda.errors import CerdaError
 from cerda.farm_watcher import FarmWatcher
 from cerda.helpers import dropbox_setup, parse_args
+
 
 def setup_logging():
     """Sets up a logger with two handlers. The santard output handler will print
@@ -92,6 +92,7 @@ try:  # so sphinx does not complain...
     logger = setup_logging()
 except:
     pass
+
 
 def main():    
     if '-h' in sys.argv or '--help' in sys.argv:

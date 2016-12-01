@@ -3,6 +3,7 @@ import sys
 
 logger = logging.getLogger('cerda')
 
+
 class CerdaError(Exception):
     """Prints out an error to the logger and exits the application.
     """

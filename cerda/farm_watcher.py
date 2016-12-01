@@ -10,7 +10,8 @@ import pysftp
 logger = logging.getLogger(__name__)
 
 from cerda.errors import CerdaError
-from cerda.helpers import get_abs_form_rel, email_sender
+from cerda.helpers import get_abs_form_rel, email_sender, is_render_finished
+
 
 class FarmWatcher:
     """Core class of the command line application. Handles or the file input
@@ -128,6 +129,12 @@ class FarmWatcher:
         """
         if item not in self.__processed and os.path.splitext(item)[1] in self.extensions:
             logger.info("New item dropped: %s", item)
+
+            if not is_render_finished(sftp, item):
+                logger.info("File is not completed yet.")
+                return
+
+            logger.info("File is completed.")
 
             source_absolute_filepath = os.path.join(sftp.pwd, item)
 

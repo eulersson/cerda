@@ -173,26 +173,24 @@ epilog = ("Examples: \n\n"
           "\t$ cerda project1/render rendered/frames -dbox -e blanquer.ramon@gmail.com -c 20\n")
 
 
-def validate_path(path):
-    """Validates the input path for source or targets given a relative path string.
+def is_render_finished(sftp, item):
+    """Checks if the render has been finished by checking if there is
+    a file with the same name with .mantra_checkpoint appended to it.
 
     Args:
-        path (string): relative path
+        sftp (obj): sftp connection object.
+        item (str): name of file
 
     Returns:
-        bool: success.
+        bool: Whether render is completed or not
     """
-    if path.endswith('/') or path.startswith('/'):
+    logger.info("Checking if render is finished for %s" % item)
+    listed_files = sftp.listdir()
+
+    if item + '.mantra_checkpoint' in listed_files:
         return False
-
-    regex = re.compile(r'[A-Za-z-_0-9]+(?:/[A-Za-z-_0-9]+)*')
-    result = regex.match(path)
-
-    # If not matching the full string something is wrong
-    if not result.regs[0][1] == len(path):
-        return False
-
-    return True
+    else:
+        return True
 
 
 def parse_args(args):
@@ -213,7 +211,6 @@ def parse_args(args):
         client (dropbox.client.DropboxClient), every (int).
 
     """
-
     parser = argparse.ArgumentParser(description=p_des, epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('source', help=s_des)
     parser.add_argument('target', help=t_des)
@@ -271,4 +268,26 @@ def parse_args(args):
     user = getpass.getuser()
     password = getpass.getpass("Password for %s: " % user)
 
-    return (user, password, args.source, args.target, args.email, args.count, client, args.every)
+    return user, password, args.source, args.target, args.email, args.count, client, args.every
+
+
+def validate_path(path):
+    """Validates the input path for source or targets given a relative path string.
+
+    Args:
+        path (string): relative path
+
+    Returns:
+        bool: success.
+    """
+    if path.endswith('/') or path.startswith('/'):
+        return False
+
+    regex = re.compile(r'[A-Za-z-_0-9]+(?:/[A-Za-z-_0-9]+)*')
+    result = regex.match(path)
+
+    # If not matching the full string something is wrong
+    if not result.regs[0][1] == len(path):
+        return False
+
+    return True
