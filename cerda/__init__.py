@@ -12,15 +12,15 @@ from cerda.helpers import dropbox_setup, parse_args
 
 
 def setup_logging():
-    """Sets up a logger with two handlers. The santard output handler will print
+    """Sets up a logger with two handlers. The standard output handler will print
     info logger messages to the terminal using colors. The file handler will
     print debug messages to a file under ~/.cerda/logs/
 
     Returns:
         logger (logging.Logger): Initialized with all the right handles.
     """
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    l = logging.getLogger(__name__)
+    l.setLevel(logging.DEBUG)
 
     # Colored stream handler
     ch = logging.StreamHandler()
@@ -43,8 +43,8 @@ def setup_logging():
     fh.setFormatter(file_formatter)
 
     # Add handlers
-    logger.addHandler(ch)
-    logger.addHandler(fh)
+    l.addHandler(ch)
+    l.addHandler(fh)
 
     print "\033[38;5;213m                                     `--:::--.                  `os/        \033[0m"
     print "\033[38;5;213m                                     yo+//+++osso+/:/+++++++/:.`y/:ss       \033[0m"
@@ -75,18 +75,19 @@ def setup_logging():
     print "\033[38;5;213m                                     -mmmhd:                                \033[0m"
     print "\033[38;5;213m                                      `/:                                   \033[0m"
 
-    logger.info("Hey I am Cerda, your render farm frame-transfering assistant!")
-    logger.info(
+    l.info("Hey I am Cerda, your render farm frame-transfering assistant!")
+    l.info(
         "I created a log file: %s under ~/.cerda/logs, If you got any problems speak to Ramon "
         "(blanquer.ramon@gmail.com) or send him that file." % log_filename
     )
 
-    return logger
+    return l
 
 
 def signal_handler(signal, frame):
     logger.info("\nOh, you leaving? See you soon! :D")
     sys.exit(0)
+
 
 try:  # so sphinx does not complain...
     logger = setup_logging()

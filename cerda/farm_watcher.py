@@ -51,6 +51,8 @@ class FarmWatcher:
             client (obj): the Dropbox client instance 
                 used to upload the files to the account. It has been initialized
                 already. It is ready to go.
+            custom_extensions (list): list of string in the form of ['.png', '.jpeg']
+                that will be intercepted by cerda and sent to the desired location.
         """
         self.__host = host
         self.__username = username
@@ -62,8 +64,7 @@ class FarmWatcher:
         self.__temporary_folder = None
         self.__notify_enabled = False
         self.__send_previews = False
-
-        self.__extensions = list(set(custom_extensions) | set(self.default_extensions))
+        self.__extensions = list(set(custom_extensions) | set(self.default_extensions)) # Union set (default)U(custom)
 
         report = ("\n\nREPORT\n"
                  "------\n"
@@ -114,7 +115,7 @@ class FarmWatcher:
         )
 
         if self.__client:
-            # create temp folder
+            # Create temporary folder
             self.__temporary_folder = tempfile.mkdtemp()
             logger.debug("A temporary folder has been created: %s", self.__temporary_folder)
 
@@ -168,26 +169,28 @@ class FarmWatcher:
 
             logger.debug("Generating image preview in case of image file")
 
-            if os.path.splitext(item)[1] in ['.png', '.jpg', '.jpeg', '.exr']:
-                logger.info("Opening %s" % target_absolute_filepath)
+            # If email notification is on and if we can make previews out of the files do it
+            if self.__notify_enabled and os.path.splitext(item)[1] in ['.png', '.jpg', '.jpeg', '.exr']:
+                logger.debug("Loading image to ImageIO: %s" % target_absolute_filepath)
                 preview = imageio.imread(target_absolute_filepath)
                 preview_path = os.path.join(self.__abs_tar_dir, os.path.splitext(item)[0]+'.preview.png')
-                logger.info("Writing to %s" % preview_path)
+                logger.info("Writing .png thumbnail to %s" % preview_path)
                 imageio.imwrite(preview_path, preview)
 
                 with open(preview_path, 'r+b') as f:
                     with Image.open(f) as image:
+                        logger.info("Resizing .png to max-width of 300 pixels")
                         cover = resizeimage.resize_width(image, 300)
                         cover.save(preview_path, image.format)
 
                 self.__send_previews = True
 
-            logger.debug("Removing file from server")
+            logger.debug("Removing file from server...")
 
             sftp.remove(source_absolute_filepath)
 
             if self.__client:
-                logger.debug("Need to move file to dropbox")
+                logger.debug("Need to move file to Dropbox")
                 logger.debug("Opening file: %s", target_absolute_filepath)
 
                 file_temporary_location = os.path.join(destination, item)
@@ -227,7 +230,6 @@ class FarmWatcher:
                              self.__abs_tar_dir,
                              self.__processed,
                              self.__send_previews)
-
 
     def run(self, delay_seconds):
         """Runs the watcher in a demonized fashion. When there is a new file it

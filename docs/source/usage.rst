@@ -6,15 +6,16 @@ Usage
 
 ::
 
-    usage: cerda [-h] [-dbox] [-e EMAIL] [-c COUNT] [-r EVERY] source target
+    usage: cerda [-h] [-dbox] [-e EMAIL] [-c COUNT] [-r EVERY] [-t CUSTOMTYPES]
+                 source target
 
     An NCCA render farm collector.
 
     positional arguments:
       source                Remote location path (relative to home) where the
                             frames get generated.
-      target                Destination location path where you would like the
-                            frames to get sent to.
+      target                Custom file extensions to mark for transfering. I.e.
+                            -t tiff,exr,obj
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -28,6 +29,9 @@ Usage
                             specified with -m flag.
       -r EVERY, --every EVERY
                             How often to check for frames dropped (in seconds)
+      -t CUSTOMTYPES, --customTypes CUSTOMTYPES
+                            Custom file extensions to mark for transfering. I.e.
+                            -t tiff,exr,obj
 
 .. warning::
     Please make sure the **paths** you pass in are relative to your home folder
@@ -77,3 +81,20 @@ Or::
 
 When it is finished you will receive an email from **cerdancca@gmail.com**.
 Hopefully it won't get blocked as I am using Google's own SMTP servers.
+
+Example 4
+---------
+
+My renderfarm is rendering out Alembic **.abc** files at ``/home/i7243466/project1/render`` 
+on the **tete** server. I want the files to get transfered to my local drive at
+location ``/home/i7243466/hello/alembics``::
+
+    $ cerda project1/render hello/alembics --customTypes abc
+
+Or you could also use the short flags::
+
+    $ cerda project1/render hello/alembics --t abc
+
+.. note::
+    You can specify more than custom type to transfer like ``--customTypes png,jpg,abc,tiff``
+    No spaces, separated by commas.

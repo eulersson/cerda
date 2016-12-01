@@ -101,8 +101,9 @@ def email_sender(email_address, wd, processed_items, attach_previews=False):
 
     Args:
         email_address (str): address to send the email to.
-
-        processed_items (list): list of rendered item names.
+        wd (str): working directory
+        processed_items (list): list of rendered item file names.
+        attach_previews (bool): if need to attach preview images
 
     """
     processed_items = map(lambda x: str(x), processed_items)

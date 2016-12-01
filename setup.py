@@ -1,20 +1,20 @@
 from setuptools import setup, find_packages
 
 requires = [
+    'cffi',
     'coloredlogs',
     'dropbox',
-    'pysftp',
     'imageio',
-    'cffi',
     'numpy',
+    'pysftp',
     'python-resize-image'
 ]
 
 test_requires = [
     'coverage',
+    'enum',
     'pytest',
-    'pytest-cov',
-    'enum'
+    'pytest-cov'
 ]
 
 doc_requires = [
@@ -24,10 +24,10 @@ doc_requires = [
 
 setup(
     name='cerda',
-    version='0.1.1',
+    version='0.1.2',
     description='An NCCA renderfarm SFTP watcher',
     url='https://github.com/docwhite/cerda',
-    download_url='https://github.com/docwhite/cerda/tarball/0.1.1',
+    download_url='https://github.com/docwhite/cerda/tarball/0.1.2',
     author='Ramon Blanquer',
     author_email='blanquer.ramon@gmail.com',
     license='MIT',
