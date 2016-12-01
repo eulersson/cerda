@@ -69,7 +69,7 @@ Releases
         get dropped.
 
     .. change:: new
-        :local: local, transfer
+        :tags: local, transfer
 
         Logging to file (debug level) and standard output (info level)
 
