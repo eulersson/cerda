@@ -162,6 +162,7 @@ d_des = "Will send the files to the root path of your dropbox account."
 m_des = "Email address to send notification to after -c frames have been rendered."
 c_des = "At this numer of frames, send an email to the address specified with -m flag."
 e_des = "How often to check for frames dropped (in seconds)"
+t_des = "Custom file extensions to mark for transfering. I.e. -t tiff,exr,obj"
 epilog = ("Examples: \n\n"
           "My renderfarm is rendering out the frames at"
           "/home/i7243466/project1/render on the tete server. I want the frames "
@@ -218,6 +219,7 @@ def parse_args(args):
     parser.add_argument('-e', '--email', help=m_des)
     parser.add_argument('-c', '--count', help=c_des, type=int)
     parser.add_argument('-r', '--every', help=e_des, type=int, default=5)
+    parser.add_argument('-t', '--customTypes', help=t_des)
     args = parser.parse_args(args)
 
     # Validate email and frame count at which to send email
@@ -260,6 +262,24 @@ def parse_args(args):
             "That does not make any sense..." % args.count
         )
 
+    # Validation on custom types
+    custom_types = []
+    if args.customTypes:
+        if ' ' in args.customTypes:
+            raise CerdaError(
+                "Specify the types in a comma separated list of like extensions. "
+                "Example: --customTypes png,jpeg,tiff"
+            )
+        custom_types = args.customTypes.split(',')
+        if not all(map(lambda x: not x.startswith('.'), custom_types)):
+            raise CerdaError(
+                "Don't write dots when defining file extensions please.\n"
+                "\tGOOD: --customTypes png,jpeg,tiff\n"
+                "\tBAD: --customTypes .png,.jpeg,.tiff"
+            )
+
+        custom_types = map(lambda x: '.'+x, custom_types)
+
     # Dropbox handling
     client = None
     if args.dropbox:
@@ -268,7 +288,7 @@ def parse_args(args):
     user = getpass.getuser()
     password = getpass.getpass("Password for %s: " % user)
 
-    return user, password, args.source, args.target, args.email, args.count, client, args.every
+    return user, password, args.source, args.target, args.email, args.count, client, args.every, custom_types
 
 
 def validate_path(path):

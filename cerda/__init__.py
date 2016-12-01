@@ -102,7 +102,7 @@ def main():
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    (user, password, source, target, email, count, client, every) = parse_args(sys.argv[1:])
+    (user, password, source, target, email, count, client, every, custom_extensions) = parse_args(sys.argv[1:])
 
     make_integer_if_exists_else_none = lambda x: int(x) if x is not None else None
 
@@ -120,7 +120,10 @@ def main():
         msg += "- To send an email to %s after %d frames have been dropped\n" % (email, count)
 
     if every is not None:
-        msg += "- To check for new rendered frames every %d seconds\n" % (every)
+        msg += "- To check for new rendered frames every %d seconds\n" % every
+
+    if len(custom_extensions):
+        msg += "- Also to watch for %s files\n" % custom_extensions
 
     logger.info(msg)
 
@@ -137,5 +140,13 @@ def main():
     else:
         notify = None
 
-    watcher = FarmWatcher(user, password, source, target, notify=notify, client=client)
+    watcher = FarmWatcher(
+        user,
+        password,
+        source,
+        target,
+        notify=notify,
+        client=client,
+        custom_extensions=custom_extensions
+    )
     watcher.run(every)

@@ -17,7 +17,7 @@ class FarmWatcher:
     """Core class of the command line application. Handles or the file input
     output operations."""
 
-    extensions = ['.png', '.exr', '.jpg', '.jpeg', '.obj', '.bgeo', '.bgeo.sc', '.tiff']
+    default_extensions = ['.png', '.exr', '.jpg', '.jpeg', '.obj', '.bgeo', '.bgeo.sc', '.tiff']
 
     def __init__(
         self, 
@@ -27,7 +27,8 @@ class FarmWatcher:
         rel_tar_dir, 
         host='tete', 
         notify=None, 
-        client=None
+        client=None,
+        custom_extensions=[]
     ):
         """Farm watcher constructor initializes a state parsed from arguments.
 
@@ -57,15 +58,19 @@ class FarmWatcher:
         self.__temporary_folder = None
         self.__notify_enabled = False
 
+        self.__extensions = list(set(custom_extensions) | set(self.default_extensions))
+
         report = ("\n\nREPORT\n"
                  "------\n"
                  "- Username: %s\n"
                  "- Relative Source Directory: %s\n"
                  "- Relative Target Directory: %s\n"
+                 "- Extensions: %s\n"
                  "- Host: %s\n") % ( 
                         username,
                         rel_src_dir,
                         rel_tar_dir,
+                        self.__extensions,
                         host
                     )
 
@@ -88,7 +93,6 @@ class FarmWatcher:
         logger.debug(report)
         if self.__notify:
             (self.__email_address, self.__send_mail_after_count) = notify
-            
 
             logger.info(
                 "I will send you an email to %s after %s frames have been collected",
@@ -109,7 +113,6 @@ class FarmWatcher:
             self.__temporary_folder = tempfile.mkdtemp()
             logger.debug("A temporary folder has been created: %s", self.__temporary_folder)
 
-
         if not self.__client:
             if not os.path.exists(self.__abs_tar_dir):
                 logger.warning(
@@ -127,7 +130,7 @@ class FarmWatcher:
             sftp (obj): sftp connection object.
             item (str): filename. The newly rendered file.
         """
-        if item not in self.__processed and os.path.splitext(item)[1] in self.extensions:
+        if item not in self.__processed and os.path.splitext(item)[1] in self.__extensions:
             logger.info("New item dropped: %s", item)
 
             if not is_render_finished(sftp, item):
@@ -229,7 +232,6 @@ class FarmWatcher:
                     )
 
                 while True:
-                    current_dir = sftp.pwd
                     listed_stuff = sftp.listdir()
 
                     for item in listed_stuff:
