@@ -2,6 +2,24 @@
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
+requires = [
+    'coloredlogs',
+    'dropbox',
+    'pysftp'
+]
+
+test_requires = [
+    'coverage',
+    'pytest',
+    'pytest-cov',
+    'enum'
+]
+
+doc_requires = [
+    'Sphinx',
+    'sphinx-rtd-theme'
+]
+
 setup(
     name='cerda',
     version='0.1.1',
@@ -13,10 +31,11 @@ setup(
     license='MIT',
     keywords='renderfarm ncca transfer files watch notification email dropbox',
     packages=find_packages(exclude=['docs', 'test']),
-    install_requires=['coloredlogs', 'dropbox', 'pysftp'],
+    install_requires=requires,
+    test_requires=test_requires,
     extras_require={
-        'docs': ['Sphinx', 'sphinx-rtd-theme'],
-        'test': ['pytest', 'pytest-cov'],
+        'docs': doc_requires,
+        'test': test_requires,
     },
     entry_points={
         'console_scripts': [

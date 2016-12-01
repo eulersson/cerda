@@ -14,6 +14,7 @@ from cerda.errors import CerdaError
 
 logger = logging.getLogger(__name__)
 
+
 def dropbox_setup():
     """Sets up a Dropbox client object that will be used to put the files on
     the Dropbox account.
@@ -92,6 +93,7 @@ def dropbox_setup():
 
     return client
 
+
 def email_sender(email_address, processed_items):
     """Given an email and the list of rendered items it sends an email using
     Google's SMTP servers. The email will come from cerdancca@gmail.com.
@@ -129,6 +131,7 @@ def email_sender(email_address, processed_items):
     except:
         logger.error("Couldn't send an email. Check the logs under ~/.cerda/logs/")
     server.quit()
+
 
 def get_abs_form_rel(rel_dir, username):
     """Given a relative folder it expands the current user home folder thus
@@ -169,6 +172,29 @@ epilog = ("Examples: \n\n"
           "\nor\n"
           "\t$ cerda project1/render rendered/frames -dbox -e blanquer.ramon@gmail.com -c 20\n")
 
+
+def validate_path(path):
+    """Validates the input path for source or targets given a relative path string.
+
+    Args:
+        path (string): relative path
+
+    Returns:
+        bool: success.
+    """
+    if path.endswith('/') or path.startswith('/'):
+        return False
+
+    regex = re.compile(r'[A-Za-z-_0-9]+(?:/[A-Za-z-_0-9]+)*')
+    result = regex.match(path)
+
+    # If not matching the full string something is wrong
+    if not result.regs[0][1] == len(path):
+        return False
+
+    return True
+
+
 def parse_args(args):
     """Parsing and validation of all the user supplied arguments.
 
@@ -179,8 +205,7 @@ def parse_args(args):
 
     Args:
         args (list): list containing a representation of the command typed by
-            the user. Something like ['-s', 'source/path', '-t', 'target/path',
-            '-dbox']
+            the user.
 
     Returns:
         tuple: a tuple with the parsed username (string), password (string),
@@ -211,9 +236,18 @@ def parse_args(args):
             if not EMAIL_REGEX.match(args.email):
                 raise CerdaError("You entered an invalid email. Typo maybe?")
 
-    # Validation on -s / --source to be implemented
+    # Validation on source and target folders
+    if args.source is None or args.target is None:
+        raise CerdaError("Source and target folders must be specified.")
 
-    # validation on -t / --target to be implemented
+    # Both source and target mus be valid paths
+    if not all(map(lambda path: validate_path(path), [args.source, args.target])):
+        raise CerdaError(
+            "Don't prepend slash (as it was absolute path) or append them. "
+            "All the paths will be parsed and understood as relative to home: "
+            "Example: hello/world --> /home/{user}/hello/world folder"
+            "NOT: /hello/world, /hello/world/, hello/world/..."
+        )
 
     # Validation on -e / --every
     if args.every < 1:

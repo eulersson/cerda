@@ -1,6 +1,10 @@
+.eggs/
 .cache/
 .idea/
 coverage/
 *.egg-info/
-*.pyc
+
+.coverage
 .nfs*
+*.pyc
+
